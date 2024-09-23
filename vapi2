@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vapi AI Assistant</title>
+</head>
+<body>
+    <script>
+        var vapiInstance = null;
+
+        // Function to get query parameters
+        function getQueryParam(param) {
+            let urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Dynamically set API key, Assistant ID, Title, and Subtitle from the query parameters
+        const apiKey = getQueryParam('apiKey') || 'defaultApi'; // Fallback to default API key
+        const assistant = getQueryParam('assistant') || 'defaultAssistant'; // Fallback to default Assistant ID
+        const title = getQueryParam('title') || 'Have a quick question?'; // Default title
+        const subtitle = getQueryParam('subtitle') || 'Talk with our AI assistant'; // Default subtitle
+        
+        const buttonConfig = {
+            position: "bottom-right", // Set button position
+            offset: "40px", // Distance from the edge
+            width: "50px", // Min-width of the button
+            height: "50px", // Height of the button
+            idle: { // State when not active
+                color: `rgb(93, 254, 202)`, 
+                type: "pill", // or "round"
+                title: title, // Set dynamically from query parameter or fallback to default
+                subtitle: subtitle, // Set dynamically from query parameter or fallback to default
+                icon: `https://unpkg.com/lucide-static@0.321.0/icons/phone.svg`,
+            },
+            loading: { // State when connecting
+                color: `rgb(93, 124, 202)`,
+                type: "pill", // or "round"
+                title: "Connecting...", // Required for Pill
+                subtitle: "Please wait", // Required for Pill
+                icon: `https://unpkg.com/lucide-static@0.321.0/icons/loader-2.svg`,
+            },
+            active: { // State when call is active
+                color: `rgb(255, 0, 0)`,
+                type: "pill", // or "round"
+                title: "Call is in progress...",
+                subtitle: "End the call.", // Required for Pill
+                icon: `https://unpkg.com/lucide-static@0.321.0/icons/phone-off.svg`,
+            },
+        };
+
+        // Inject Vapi AI SDK and configure
+        (function (d, t) {
+            var g = document.createElement(t),
+                s = d.getElementsByTagName(t)[0];
+            g.src = "https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js";
+            g.defer = true;
+            g.async = true;
+            s.parentNode.insertBefore(g, s);
+            g.onload = function () {
+                vapiInstance = window.vapiSDK.run({
+                    apiKey: apiKey, // Use dynamically set API key
+                    assistant: assistant, // Use dynamically set Assistant ID
+                    config: buttonConfig, // Optional button configuration
+                });
+
+                // Add event listeners after Vapi SDK is initialized
+                vapiInstance.on('speech-start', () => {
+                    console.log('Speech has started');
+                });
+
+                vapiInstance.on('speech-end', () => {
+                    console.log('Speech has ended');
+                });
+
+                vapiInstance.on('call-start', () => {
+                    console.log('Call has started');
+                });
+
+                vapiInstance.on('call-end', () => {
+                    console.log('Call has stopped');
+                });
+
+                vapiInstance.on('volume-level', (volume) => {
+                    console.log(`Assistant volume level: ${volume}`);
+                });
+
+                // Function calls and transcripts will be sent via messages
+                vapiInstance.on('message', (message) => {
+                    console.log(message);
+                });
+
+                vapiInstance.on('error', (e) => {
+                    console.error(e);
+                });
+            };
+        })(document, "script");
+    </script>
+</body>
+</html>
