@@ -19,31 +19,7 @@
         const subtitle = getQueryParam('subtitle') || 'Talk with our AI assistant';
 
         const buttonConfig = {
-            position: "bottom-right",
-            offset: "40px",
-            width: "50px",
-            height: "50px",
-            idle: {
-                color: `rgb(93, 254, 202)`,
-                type: "pill",
-                title: title,
-                subtitle: subtitle,
-                icon: `https://unpkg.com/lucide-static@0.321.0/icons/phone.svg`,
-            },
-            loading: {
-                color: `rgb(93, 124, 202)`,
-                type: "pill",
-                title: "Connecting...",
-                subtitle: "Please wait",
-                icon: `https://unpkg.com/lucide-static@0.321.0/icons/loader-2.svg`,
-            },
-            active: {
-                color: `rgb(255, 0, 0)`,
-                type: "pill",
-                title: "Call is in progress...",
-                subtitle: "End the call.",
-                icon: `https://unpkg.com/lucide-static@0.321.0/icons/phone-off.svg`,
-            },
+            // ... existing button configuration
         };
 
         (function (d, t) {
@@ -54,6 +30,11 @@
             s.parentNode.insertBefore(g, s);
 
             g.onload = function () {
+                if (window.vapiEventListenersAdded) {
+                    return;
+                }
+                window.vapiEventListenersAdded = true;
+
                 vapiInstance = window.vapiSDK.run({
                     apiKey: apiKey,
                     assistant: assistant,
