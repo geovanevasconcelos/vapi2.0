@@ -60,23 +60,29 @@
                     config: buttonConfig
                 });
 
-                // Check if vapiInstance is created
                 console.log("Assistant: vapiInstance created:", vapiInstance);
 
                 // Event listener for messages from the assistant
                 vapiInstance.on('message', (message) => {
                     console.log("Assistant: Received message:", message);
 
-                    // Extract the transcription from message.content
-                    let transcription = message.content;
+                    // Check if the message is a transcript
+                    if (message.type === 'transcript') {
+                        // Extract the transcript and role
+                        let transcription = message.transcript;
+                        let role = message.role; // 'user' or 'assistant'
 
-                    console.log("Assistant: Sending transcription:", transcription);
+                        console.log("Assistant: Sending transcription:", transcription, "Role:", role);
 
-                    // Send the transcription to the parent window
-                    window.parent.postMessage({
-                        type: 'transcription',
-                        data: transcription
-                    }, '*'); // Replace '*' with your Bubble app's origin if possible
+                        // Send the transcription and role to the parent window
+                        window.parent.postMessage({
+                            type: 'transcription',
+                            data: {
+                                transcription: transcription,
+                                role: role
+                            }
+                        }, '*'); // Replace '*' with your Bubble app's origin if possible
+                    }
                 });
 
                 // Event listener for errors from the assistant
