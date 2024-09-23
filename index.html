@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- ... (existing head content) -->
+    <meta charset="UTF-8">
+    <title>Vapi AI Assistant</title>
 </head>
 <body>
     <script>
@@ -18,7 +19,31 @@
         const subtitle = getQueryParam('subtitle') || 'Talk with our AI assistant';
 
         const buttonConfig = {
-            // ... (existing button configuration)
+            position: "bottom-right",
+            offset: "40px",
+            width: "50px",
+            height: "50px",
+            idle: {
+                color: `rgb(93, 254, 202)`,
+                type: "pill",
+                title: title,
+                subtitle: subtitle,
+                icon: `https://unpkg.com/lucide-static@0.321.0/icons/phone.svg`,
+            },
+            loading: {
+                color: `rgb(93, 124, 202)`,
+                type: "pill",
+                title: "Connecting...",
+                subtitle: "Please wait",
+                icon: `https://unpkg.com/lucide-static@0.321.0/icons/loader-2.svg`,
+            },
+            active: {
+                color: `rgb(255, 0, 0)`,
+                type: "pill",
+                title: "Call is in progress...",
+                subtitle: "End the call.",
+                icon: `https://unpkg.com/lucide-static@0.321.0/icons/phone-off.svg`,
+            },
         };
 
         (function (d, t) {
@@ -35,22 +60,29 @@
                     config: buttonConfig
                 });
 
-                // Send transcription data to the parent window
+                // Event listener for messages from the assistant
                 vapiInstance.on('message', (message) => {
-                    console.log("Assistant: Sending transcription:", message.transcription || message.text);
+                    console.log("Assistant: Received message:", message);
+
+                    // Extract the transcription from the correct property
+                    let transcription = message.text || message.transcription || message.content || message.transcript || message.message || message.data;
+
+                    console.log("Assistant: Sending transcription:", transcription);
+
+                    // Send the transcription to the parent window
                     window.parent.postMessage({
                         type: 'transcription',
-                        data: message.transcription || message.text
-                    }, '*'); // Replace '*' with your Bubble app's origin if known
+                        data: transcription
+                    }, '*'); // Replace '*' with your Bubble app's origin if possible
                 });
 
-                // Send error data to the parent window
+                // Event listener for errors from the assistant
                 vapiInstance.on('error', (e) => {
-                    console.log("Assistant: Sending error:", e.message);
+                    console.error("Assistant: Error:", e.message);
                     window.parent.postMessage({
                         type: 'error',
                         data: e.message
-                    }, '*'); // Replace '*' with your Bubble app's origin if known
+                    }, '*'); // Replace '*' with your Bubble app's origin if possible
                 });
             };
         })(document, "script");
