@@ -65,7 +65,7 @@
                     console.log("Assistant: Received message:", message);
 
                     // Extract the transcription from the correct property
-                    let transcription = message.text || message.transcription || message.content || message.transcript || message.message || message.data;
+                    let transcription = message.text || message.transcription || message.content || message.transcript || message.message;
 
                     console.log("Assistant: Sending transcription:", transcription);
 
