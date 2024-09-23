@@ -9,18 +9,16 @@
     <script>
         var vapiInstance = null;
 
-        // Function to get query parameters
         function getQueryParam(param) {
             let urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
         }
 
-        // Dynamically set API key, Assistant ID, Title, and Subtitle from the query parameters
-        const apiKey = getQueryParam('apiKey') || 'defaultApi'; // Fallback to default API key
-        const assistant = getQueryParam('assistant') || 'defaultAssistant'; // Fallback to default Assistant ID
-        const title = getQueryParam('title') || 'Have a quick question?'; // Default title
-        const subtitle = getQueryParam('subtitle') || 'Talk with our AI assistant'; // Default subtitle
-        
+        const apiKey = getQueryParam('apiKey') || 'defaultApi';
+        const assistant = getQueryParam('assistant') || 'defaultAssistant';
+        const title = getQueryParam('title') || 'Have a quick question?';
+        const subtitle = getQueryParam('subtitle') || 'Talk with our AI assistant';
+
         const buttonConfig = {
             position: "bottom-right",
             offset: "40px",
@@ -49,10 +47,8 @@
             },
         };
 
-        // Inject Vapi AI SDK and configure
         (function (d, t) {
-            var g = d.createElement(t),
-                s = d.getElementsByTagName(t)[0];
+            var g = d.createElement(t), s = d.getElementsByTagName(t)[0];
             g.src = "https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js";
             g.defer = true;
             g.async = true;
@@ -64,14 +60,18 @@
                     config: buttonConfig
                 });
 
-                // Add event listeners after Vapi SDK is initialized
                 vapiInstance.on('message', (message) => {
-                    console.log(message);  // Logs the message for debugging
-                    instance.publishState('transcription', message.transcription || message.text);  // Publish transcription to the exposed state
+                    window.parent.postMessage({
+                        type: 'transcription',
+                        data: message.transcription || message.text
+                    }, '*');
                 });
 
                 vapiInstance.on('error', (e) => {
-                    console.error(e);
+                    window.parent.postMessage({
+                        type: 'error',
+                        data: e.message
+                    }, '*');
                 });
             };
         })(document, "script");
